@@ -1,0 +1,1 @@
+An AI-Powered Note-Taking App is super useful for students, professionals, and anyone who deals with a lot of information daily. It enhances productivity by organizing, summarizing, and searching notes efficiently.
