@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const authenticateToken = require('../middleware/authenticateToken');
 
 const router = express.Router();
 
@@ -33,6 +34,18 @@ router.post('/login', (req, res) => {
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({ token, userId: user.id });
+    });
+});
+
+// ✅ Get User Details (Protected Route)
+router.get('/user', authenticateToken, (req, res) => {
+    const userId = req.userId; // ✅ Using the userId stored in middleware
+
+    db.query('SELECT id, username, email FROM users WHERE id = ?', [userId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(404).json({ error: "User not found" });
+
+        res.json(results[0]); // Return user details without password
     });
 });
 
