@@ -69,7 +69,7 @@ const AuthProvider = ({ children }) => {
         const res = await axios.get("http://localhost:5000/api/users/user", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(res.data);
+        setUser(res.data); // ✅ Properly set user details
       } catch (error) {
         console.log("Session expired, logging out...");
         logout();
@@ -79,16 +79,26 @@ const AuthProvider = ({ children }) => {
     checkLogin();
   }, []);
 
-  const login = (userData, token) => {
+  const login = async (userId, token) => {
     localStorage.setItem("token", token);
-    setUser(userData);
-    setTimeout(() => navigate("/notes"), 100); // Ensure proper navigation
+
+    try {
+      const res = await axios.get("http://localhost:5000/api/users/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setUser(res.data); // ✅ Fetch user details
+      navigate("/"); // ✅ Redirect after successful login
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      logout();
+    }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-    setTimeout(() => navigate("/auth"), 100);
+    navigate("/");
   };
 
   return (
@@ -99,4 +109,3 @@ const AuthProvider = ({ children }) => {
 };
 
 export default AuthProvider;
-

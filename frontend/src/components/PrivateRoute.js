@@ -5,7 +5,11 @@ import { AuthContext } from "../context/AuthContext";
 const PrivateRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
 
-  return user ? children : <Navigate to="/login" />;
+  if (user === null) {
+    return <h2 className="text-center mt-5">Loading...</h2>; // ✅ Prevents white screen
+  }
+
+  return user ? children : <Navigate to="/auth" />;
 };
 
 export default PrivateRoute;
