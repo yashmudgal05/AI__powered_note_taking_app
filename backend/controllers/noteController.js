@@ -13,30 +13,30 @@ const createNote = async (req, res) => {
     let audioText = "";
 
     try {
-        // 🔍 Process Image using OCR
+        // 🔍 OCR: Process Image
         if (req.files && req.files.image) {
             const { data: { text } } = await tesseract.recognize(req.files.image[0].path);
             imageText = text;
             fs.unlinkSync(req.files.image[0].path);
         }
 
-        // 🎤 Process Audio using Google Speech-to-Text
+        // 🎤 Speech-to-Text: Process Audio
         if (req.files && req.files.audio) {
             const filePath = req.files.audio[0].path;
-            const audioBytes = fs.readFileSync(filePath).toString('base64');
+            const audioBytes = fs.readFileSync(filePath).toString("base64");
 
             const request = {
                 audio: { content: audioBytes },
-                config: { encoding: 'LINEAR16', sampleRateHertz: 16000, languageCode: 'en-US' },
+                config: { encoding: "LINEAR16", sampleRateHertz: 16000, languageCode: "en-US" },
             };
 
             const [response] = await client.recognize(request);
-            audioText = response.results.map(r => r.alternatives[0].transcript).join('\n');
+            audioText = response.results.map(r => r.alternatives[0].transcript).join("\n");
 
             fs.unlinkSync(filePath);
         }
 
-        // 🧠 AI Summary based on Available Inputs
+        // 🧠 AI Summary
         const fullContent = `${content} ${imageText} ${audioText}`;
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -45,16 +45,17 @@ const createNote = async (req, res) => {
 
         const summary = aiResponse.choices[0].message.content;
 
-        // 📦 Insert into Database
+        // 📦 Save to Database
         db.query(
-            'INSERT INTO notes (user_id, title, content, summary, tags, image_url, audio_url) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-            [req.userId, title, content, summary, tags, req.files.image ? req.files.image[0].path : null, req.files.audio ? req.files.audio[0].path : null], 
+            "INSERT INTO notes (user_id, title, content, summary, tags, image_url, audio_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [req.userId, title, content, summary, tags, req.files.image ? req.files.image[0].path : null, req.files.audio ? req.files.audio[0].path : null],
             (err, result) => {
                 if (err) return res.status(500).json({ error: err.message });
                 res.json({ message: "Note added!", id: result.insertId });
             }
         );
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Failed to create note" });
     }
 };

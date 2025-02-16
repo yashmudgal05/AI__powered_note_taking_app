@@ -6,8 +6,13 @@ const authenticateToken = require('../middleware/authMiddleware'); // Import JWT
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-// Routes (Protected)
-router.post('/add', authenticateToken, upload.fields([{ name: 'image' }, { name: 'audio' }]), createNote);
+router.post(
+    "/add",
+    authenticateToken, // Ensure user is authenticated
+    upload.fields([{ name: "image", maxCount: 1 }, { name: "audio", maxCount: 1 }]), 
+    createNote
+  );
+  
 router.get('/all', authenticateToken, getNotes);
 router.delete('/delete/:id', authenticateToken, deleteNote);
 router.get('/search', authenticateToken, searchNotes);

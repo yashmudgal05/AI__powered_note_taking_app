@@ -9,6 +9,7 @@ import NotesDashboard from "./components/NotesDashboard"; // New component
 import "bootstrap/dist/css/bootstrap.min.css";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthProvider from "./context/AuthContext";
+import ProfilePage from "./components/ProfilePage";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/create" element={<PrivateRoute><NoteForm /></PrivateRoute>} />
             <Route path="/notes" element={<PrivateRoute><Notes /></PrivateRoute>} />
             <Route path="/notes/:id" element={<PrivateRoute><NoteDetail /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           </Routes>
         </div>
       </AuthProvider>
